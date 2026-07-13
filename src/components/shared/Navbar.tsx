@@ -57,12 +57,12 @@ const Navbar = () => {
   };
 
   return (
-    <header className="sticky top-0 z-50 border-b border-slate-200/80 bg-white/90 backdrop-blur-xl dark:border-slate-800 dark:bg-slate-950/90">
+    <header className="sticky top-0 z-50 border-b border-(--surface-border) bg-(--page-background)">
       <nav
         className="container-shell"
         aria-label="DineSpot primary navigation"
       >
-        <div className="flex h-[76px] items-center justify-between gap-4">
+        <div className="flex h-19 items-center justify-between gap-4">
           {/* Brand */}
           <Link
             href="/"
@@ -70,14 +70,14 @@ const Navbar = () => {
             aria-label="Go to DineSpot homepage"
             className="shrink-0 rounded-xl focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-orange"
           >
-            <span className="flex items-center rounded-xl bg-white px-2 py-1 shadow-sm dark:bg-white">
+            <span className="flex items-center rounded-xl  px-2 py-1 shadow-sm">
               <Image
                 src="/images/logo.png"
                 alt="DineSpot"
                 width={210}
                 height={100}
                 priority
-                className="h-12 w-[145px] object-contain sm:w-[165px]"
+                className="h-12 w-36.25 object-contain sm:w-41.25"
               />
             </span>
           </Link>
@@ -101,7 +101,7 @@ const Navbar = () => {
                   {item.label}
 
                   {isActive && (
-                    <span className="absolute inset-x-4 -bottom-[17px] h-0.5 rounded-full bg-brand-orange dark:bg-brand-yellow" />
+                    <span className="absolute inset-x-4 -bottom-4.25 h-0.5 rounded-full bg-brand-orange dark:bg-brand-yellow" />
                   )}
                 </Link>
               );
