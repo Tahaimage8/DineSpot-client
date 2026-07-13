@@ -1,0 +1,109 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --color-brand-orange: #f97316;
+  --color-brand-orange-dark: #ea580c;
+  --color-brand-green: #14532d;
+  --color-brand-green-light: #166534;
+  --color-brand-yellow: #fbbf24;
+  --color-brand-cream: #fffaf5;
+  --color-brand-ink: #172033;
+  --color-brand-muted: #64748b;
+}
+
+@theme inline {
+  --font-sans: var(--font-manrope);
+}
+
+:root {
+  --page-background: #fffaf5;
+  --page-foreground: #172033;
+
+  --surface-background: #ffffff;
+  --surface-border: #e2e8f0;
+
+  --muted-text: #64748b;
+}
+
+.dark {
+  --page-background: #0b1120;
+  --page-foreground: #f8fafc;
+
+  --surface-background: #111827;
+  --surface-border: #263244;
+
+  --muted-text: #94a3b8;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  min-height: 100vh;
+  margin: 0;
+  background-color: var(--page-background);
+  color: var(--page-foreground);
+  transition:
+    background-color 200ms ease,
+    color 200ms ease;
+}
+
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button {
+  cursor: pointer;
+}
+
+::selection {
+  background-color: #fed7aa;
+  color: #7c2d12;
+}
+
+.dark ::selection {
+  background-color: #9a3412;
+  color: #fff7ed;
+}
+
+/* Shared responsive container */
+
+.container-shell {
+  width: 100%;
+  max-width: 1280px;
+  margin-inline: auto;
+  padding-inline: 1rem;
+}
+
+/* Shared card surface */
+
+.surface-card {
+  border: 1px solid var(--surface-border);
+  background-color: var(--surface-background);
+}
+
+/* Shared muted text */
+
+.muted-text {
+  color: var(--muted-text);
+}
+
+@media (min-width: 640px) {
+  .container-shell {
+    padding-inline: 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .container-shell {
+    padding-inline: 2rem;
+  }
+}
