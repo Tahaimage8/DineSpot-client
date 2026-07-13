@@ -5,6 +5,7 @@ import type { ReactNode } from "react";
 import "./globals.css";
 import Providers from "./providers";
 import Navbar from "../components/shared/Navbar";
+import Footer from "../components/shared/Footer";
 
 const manrope = Manrope({
   variable: "--font-manrope",
@@ -29,9 +30,13 @@ const RootLayout = ({ children }: RootLayoutProps) => {
     <html lang="en" suppressHydrationWarning>
       <body className={`${manrope.variable} font-sans antialiased`}>
         <Providers>
-          <Navbar />
+          <div className="flex min-h-screen flex-col">
+            <Navbar />
 
-          <div className="min-h-screen">{children}</div>
+            <div className="flex-1">{children}</div>
+
+            <Footer />
+          </div>
         </Providers>
       </body>
     </html>
