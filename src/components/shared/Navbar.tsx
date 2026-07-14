@@ -121,7 +121,7 @@ const Navbar = () => {
         <div className="flex h-20 items-center justify-between gap-4">
           <Link
             href="/"
-            className="shrink-0 rounded-xl bg-white px-2 py-1"
+            className="shrink-0 rounded-xl  px-2 py-1"
           >
             <Image
               src="/images/logo.png"
