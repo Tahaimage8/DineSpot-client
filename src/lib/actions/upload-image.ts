@@ -2,10 +2,12 @@
 
 type ImgBBResponse = {
   success?: boolean;
+
   data?: {
     url?: string;
     display_url?: string;
   };
+
   error?: {
     message?: string;
   };
@@ -13,17 +15,17 @@ type ImgBBResponse = {
 
 export type UploadImageResult = {
   success: boolean;
-  imageUrl?: string;
   message: string;
+  imageUrl?: string;
 };
 
-const allowedTypes = [
+const allowedImageTypes = [
   "image/jpeg",
   "image/png",
   "image/webp",
 ];
 
-const maximumImageSize = 1024 * 1024;
+const maximumImageSize = 2 * 1024 * 1024;
 
 export const uploadImage = async (
   formData: FormData,
@@ -34,11 +36,11 @@ export const uploadImage = async (
     if (!(image instanceof File) || image.size === 0) {
       return {
         success: false,
-        message: "Please select an image.",
+        message: "Please choose a profile image.",
       };
     }
 
-    if (!allowedTypes.includes(image.type)) {
+    if (!allowedImageTypes.includes(image.type)) {
       return {
         success: false,
         message: "Only JPG, PNG and WebP images are allowed.",
@@ -48,7 +50,7 @@ export const uploadImage = async (
     if (image.size > maximumImageSize) {
       return {
         success: false,
-        message: "Image size must be less than 1 MB.",
+        message: "The image must be smaller than 2 MB.",
       };
     }
 
@@ -84,14 +86,14 @@ export const uploadImage = async (
         success: false,
         message:
           result.error?.message ||
-          "Image upload failed. Please try again.",
+          "Profile image upload failed.",
       };
     }
 
     return {
       success: true,
+      message: "Profile image uploaded.",
       imageUrl,
-      message: "Image uploaded successfully.",
     };
   } catch {
     return {
