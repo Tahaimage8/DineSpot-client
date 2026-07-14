@@ -1,4 +1,6 @@
 
+
+
 import AboutContent from "@/src/components/about/AboutContent";
 import type { Metadata } from "next";
 
