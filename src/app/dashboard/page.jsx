@@ -34,7 +34,7 @@ const DashboardPage = async () => {
 
   return (
     <div className="mx-auto max-w-6xl">
-      <section className="surface-card rounded-[2rem] p-6 shadow-sm sm:p-8">
+      <section className="surface-card rounded-4xl p-6 shadow-sm sm:p-8">
         <span className="inline-flex rounded-full bg-orange-100 px-4 py-2 text-sm font-bold text-brand-orange-dark dark:bg-orange-950 dark:text-orange-300">
           {accountLabel} Dashboard
         </span>
