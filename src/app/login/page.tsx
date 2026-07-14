@@ -167,7 +167,7 @@ const LoginPage = () => {
             transition={{
               duration: 0.5,
             }}
-            className="hidden overflow-hidden rounded-[2rem] bg-brand-green p-9 text-white lg:block"
+            className="hidden overflow-hidden rounded-4xl bg-brand-green p-9 text-white lg:block"
           >
             <div className="inline-flex rounded-2xl bg-white p-2">
               <Image
@@ -249,7 +249,7 @@ const LoginPage = () => {
             transition={{
               duration: 0.5,
             }}
-            className="surface-card flex flex-col justify-center rounded-[2rem] p-6 shadow-xl sm:p-9"
+            className="surface-card flex flex-col justify-center rounded-4xl p-6 shadow-xl sm:p-9"
           >
             <p className="text-sm font-bold uppercase tracking-[0.16em] text-brand-orange">
               Account Login
