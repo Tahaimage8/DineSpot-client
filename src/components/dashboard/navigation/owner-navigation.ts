@@ -17,32 +17,32 @@ export const ownerNavigation: DashboardNavigationItem[] =
     },
     {
       label: "My Restaurants",
-      href: "/dashboard/restaurants",
+      href: "/dashboard/my-restaurants",
       icon: FiCoffee,
-      disabled: true,
+
     },
     {
       label: "Add Restaurant",
       href: "/dashboard/restaurants/add",
       icon: FiPlusSquare,
-      disabled: true,
+
     },
     {
       label: "Reservations",
       href: "/dashboard/reservations",
       icon: FiCalendar,
-      disabled: true,
+
     },
     {
       label: "Reviews",
       href: "/dashboard/reviews",
       icon: FiMessageSquare,
-      disabled: true,
+
     },
     {
       label: "Profile",
       href: "/dashboard/profile",
       icon: FiUser,
-      disabled: true,
+
     },
   ];

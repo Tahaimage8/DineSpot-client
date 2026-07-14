@@ -17,18 +17,18 @@ export const customerNavigation: DashboardNavigationItem[] =
       label: "My Reservations",
       href: "/dashboard/reservations",
       icon: FiCalendar,
-      disabled: true,
+
     },
     {
       label: "My Reviews",
       href: "/dashboard/reviews",
       icon: FiStar,
-      disabled: true,
+
     },
     {
       label: "Profile",
       href: "/dashboard/profile",
       icon: FiUser,
-      disabled: true,
+
     },
   ];
