@@ -1,6 +1,6 @@
 
 
-import ContactContent from "@/src/components/contact/ContactContent";
+import ContactContent from "@/components/contact/ContactContent";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {

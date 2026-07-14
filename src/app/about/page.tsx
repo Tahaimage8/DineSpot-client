@@ -1,7 +1,7 @@
 
 
 
-import AboutContent from "@/src/components/about/AboutContent";
+import AboutContent from "@/components/about/AboutContent";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
