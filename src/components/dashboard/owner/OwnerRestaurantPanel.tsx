@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import {
   type ChangeEvent,
   type FormEvent,
+  useEffect,
+  useRef,
   useState,
   useTransition,
 } from "react";
@@ -15,6 +17,7 @@ import {
   deleteRestaurant,
   updateRestaurant,
 } from "@/lib/actions/restaurants";
+import { uploadImage } from "@/lib/actions/upload-image";
 import type {
   Restaurant,
   RestaurantInput,
@@ -44,6 +47,14 @@ const emptyForm: RestaurantFormState = {
   email: "",
   image: "",
 };
+
+const allowedImageTypes = [
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+];
+
+const maximumImageSize = 2 * 1024 * 1024;
 
 const getRestaurantForm = (
   restaurant: Restaurant | null,
@@ -79,6 +90,8 @@ const OwnerRestaurantPanel = ({
   initialRestaurant,
 }: OwnerRestaurantPanelProps) => {
   const router = useRouter();
+  const imageInputRef =
+    useRef<HTMLInputElement>(null);
 
   const [restaurant, setRestaurant] =
     useState<Restaurant | null>(
@@ -90,11 +103,25 @@ const OwnerRestaurantPanel = ({
       getRestaurantForm(initialRestaurant),
     );
 
+  const [selectedImage, setSelectedImage] =
+    useState<File | null>(null);
+
+  const [imagePreview, setImagePreview] =
+    useState(initialRestaurant?.image || "");
+
   const [isEditing, setIsEditing] =
     useState(!initialRestaurant);
 
   const [isPending, startTransition] =
     useTransition();
+
+  useEffect(() => {
+    return () => {
+      if (imagePreview.startsWith("blob:")) {
+        URL.revokeObjectURL(imagePreview);
+      }
+    };
+  }, [imagePreview]);
 
   const handleChange = (
     event: ChangeEvent<
@@ -109,11 +136,72 @@ const OwnerRestaurantPanel = ({
     }));
   };
 
+  const handleImageChange = (
+    event: ChangeEvent<HTMLInputElement>,
+  ) => {
+    const image = event.target.files?.[0];
+
+    if (!image) {
+      return;
+    }
+
+    if (!allowedImageTypes.includes(image.type)) {
+      toast.error(
+        "Only JPG, PNG and WebP images are allowed.",
+      );
+
+      event.target.value = "";
+      return;
+    }
+
+    if (image.size > maximumImageSize) {
+      toast.error(
+        "The image must be smaller than 2 MB.",
+      );
+
+      event.target.value = "";
+      return;
+    }
+
+    setSelectedImage(image);
+    setImagePreview(
+      URL.createObjectURL(image),
+    );
+  };
+
+  const handleRemoveImage = () => {
+    setSelectedImage(null);
+    setImagePreview("");
+
+    setFormData((currentData) => ({
+      ...currentData,
+      image: "",
+    }));
+
+    if (imageInputRef.current) {
+      imageInputRef.current.value = "";
+    }
+  };
+
+  const resetImage = (
+    currentRestaurant: Restaurant | null,
+  ) => {
+    setSelectedImage(null);
+    setImagePreview(
+      currentRestaurant?.image || "",
+    );
+
+    if (imageInputRef.current) {
+      imageInputRef.current.value = "";
+    }
+  };
+
   const handleCancel = () => {
     setFormData(
       getRestaurantForm(restaurant),
     );
 
+    resetImage(restaurant);
     setIsEditing(false);
   };
 
@@ -122,19 +210,52 @@ const OwnerRestaurantPanel = ({
   ) => {
     event.preventDefault();
 
-    const restaurantData: RestaurantInput = {
-      name: formData.name.trim(),
-      cuisine: formData.cuisine.trim(),
-      location: formData.location.trim(),
-      description:
-        formData.description.trim(),
-      phone: formData.phone.trim(),
-      email: formData.email.trim(),
-      image: formData.image.trim(),
-    };
-
     startTransition(async () => {
       try {
+        let imageUrl =
+          formData.image.trim();
+
+        if (selectedImage) {
+          const imageFormData =
+            new FormData();
+
+          imageFormData.append(
+            "image",
+            selectedImage,
+          );
+
+          const uploadResult =
+            await uploadImage(
+              imageFormData,
+            );
+
+          if (
+            !uploadResult.success ||
+            !uploadResult.imageUrl
+          ) {
+            throw new Error(
+              uploadResult.message,
+            );
+          }
+
+          imageUrl =
+            uploadResult.imageUrl;
+        }
+
+        const restaurantData: RestaurantInput =
+          {
+            name: formData.name.trim(),
+            cuisine:
+              formData.cuisine.trim(),
+            location:
+              formData.location.trim(),
+            description:
+              formData.description.trim(),
+            phone: formData.phone.trim(),
+            email: formData.email.trim(),
+            image: imageUrl,
+          };
+
         const result = restaurant
           ? await updateRestaurant(
               restaurant._id,
@@ -145,19 +266,23 @@ const OwnerRestaurantPanel = ({
             );
 
         if (result.restaurant) {
-          setRestaurant(result.restaurant);
+          setRestaurant(
+            result.restaurant,
+          );
 
           setFormData(
             getRestaurantForm(
               result.restaurant,
             ),
           );
+
+          resetImage(
+            result.restaurant,
+          );
         }
 
         setIsEditing(false);
-
         toast.success(result.message);
-
         router.refresh();
       } catch (error) {
         toast.error(
@@ -191,10 +316,10 @@ const OwnerRestaurantPanel = ({
 
         setRestaurant(null);
         setFormData(emptyForm);
+        resetImage(null);
         setIsEditing(true);
 
         toast.success(result.message);
-
         router.refresh();
       } catch (error) {
         toast.error(
@@ -206,6 +331,15 @@ const OwnerRestaurantPanel = ({
     });
   };
 
+  const openEditForm = () => {
+    setFormData(
+      getRestaurantForm(restaurant),
+    );
+
+    resetImage(restaurant);
+    setIsEditing(true);
+  };
+
   if (isEditing) {
     return (
       <section className="surface-card mx-auto max-w-4xl p-5 sm:p-7">
@@ -214,7 +348,7 @@ const OwnerRestaurantPanel = ({
             Restaurant Owner
           </p>
 
-          <h1 className="mt-1 text-2xl font-bold text-(--foreground) sm:text-3xl">
+          <h1 className="mt-1 text-2xl font-bold text-[var(--foreground)] sm:text-3xl">
             {restaurant
               ? "Update Restaurant"
               : "Add Your Restaurant"}
@@ -246,7 +380,8 @@ const OwnerRestaurantPanel = ({
               onChange={handleChange}
               placeholder="Enter restaurant name"
               required
-              className="w-full rounded-xl border border-(--border) bg-(--surface) px-4 py-3 outline-none transition focus:border-orange-500"
+              disabled={isPending}
+              className="w-full rounded-xl border border-[var(--border)] bg-[var(--surface)] px-4 py-3 outline-none transition focus:border-orange-500 disabled:opacity-60"
             />
           </div>
 
@@ -265,7 +400,8 @@ const OwnerRestaurantPanel = ({
               onChange={handleChange}
               placeholder="Bangladeshi, Italian..."
               required
-              className="w-full rounded-xl border border-(--border) bg-(--surface) px-4 py-3 outline-none transition focus:border-orange-500"
+              disabled={isPending}
+              className="w-full rounded-xl border border-[var(--border)] bg-[var(--surface)] px-4 py-3 outline-none transition focus:border-orange-500 disabled:opacity-60"
             />
           </div>
 
@@ -284,7 +420,8 @@ const OwnerRestaurantPanel = ({
               onChange={handleChange}
               placeholder="Dhaka, Bangladesh"
               required
-              className="w-full rounded-xl border border-(--border) bg-(--surface) px-4 py-3 outline-none transition focus:border-orange-500"
+              disabled={isPending}
+              className="w-full rounded-xl border border-[var(--border)] bg-[var(--surface)] px-4 py-3 outline-none transition focus:border-orange-500 disabled:opacity-60"
             />
           </div>
 
@@ -302,11 +439,12 @@ const OwnerRestaurantPanel = ({
               value={formData.phone}
               onChange={handleChange}
               placeholder="01XXXXXXXXX"
-              className="w-full rounded-xl border border-(--border) bg-(--surface) px-4 py-3 outline-none transition focus:border-orange-500"
+              disabled={isPending}
+              className="w-full rounded-xl border border-[var(--border)] bg-[var(--surface)] px-4 py-3 outline-none transition focus:border-orange-500 disabled:opacity-60"
             />
           </div>
 
-          <div>
+          <div className="sm:col-span-2">
             <label
               htmlFor="email"
               className="mb-2 block text-sm font-semibold"
@@ -321,26 +459,85 @@ const OwnerRestaurantPanel = ({
               value={formData.email}
               onChange={handleChange}
               placeholder="restaurant@example.com"
-              className="w-full rounded-xl border border-(--border) bg-(--surface) px-4 py-3 outline-none transition focus:border-orange-500"
+              disabled={isPending}
+              className="w-full rounded-xl border border-[var(--border)] bg-[var(--surface)] px-4 py-3 outline-none transition focus:border-orange-500 disabled:opacity-60"
             />
           </div>
 
-          <div>
-            <label
-              htmlFor="image"
-              className="mb-2 block text-sm font-semibold"
-            >
-              Image URL
-            </label>
+          <div className="sm:col-span-2">
+            <p className="mb-2 block text-sm font-semibold">
+              Restaurant Image
+            </p>
 
-            <input
-              id="image"
-              name="image"
-              value={formData.image}
-              onChange={handleChange}
-              placeholder="https://i.ibb.co/..."
-              className="w-full rounded-xl border border-(--border) bg-(--surface) px-4 py-3 outline-none transition focus:border-orange-500"
-            />
+            <div className="rounded-2xl border border-dashed border-[var(--border)] p-4">
+              {imagePreview ? (
+                <div className="relative h-56 overflow-hidden rounded-xl sm:h-72">
+                  <Image
+                    src={imagePreview}
+                    alt="Restaurant preview"
+                    fill
+                    unoptimized
+                    className="object-cover"
+                    sizes="(max-width: 768px) 100vw, 800px"
+                  />
+                </div>
+              ) : (
+                <div className="flex h-44 items-center justify-center rounded-xl bg-black/5 text-center dark:bg-white/5">
+                  <div>
+                    <p className="font-semibold">
+                      No image selected
+                    </p>
+
+                    <p className="muted-text mt-1 text-sm">
+                      JPG, PNG or WebP,
+                      maximum 2 MB
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              <input
+                ref={imageInputRef}
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                onChange={handleImageChange}
+                disabled={isPending}
+                className="hidden"
+              />
+
+              <div className="mt-4 flex flex-wrap gap-3">
+                <button
+                  type="button"
+                  onClick={() =>
+                    imageInputRef.current?.click()
+                  }
+                  disabled={isPending}
+                  className="rounded-xl bg-emerald-700 px-5 py-2.5 font-semibold text-white transition hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {imagePreview
+                    ? "Change Image"
+                    : "Choose Image"}
+                </button>
+
+                {imagePreview && (
+                  <button
+                    type="button"
+                    onClick={handleRemoveImage}
+                    disabled={isPending}
+                    className="rounded-xl border border-red-300 px-5 py-2.5 font-semibold text-red-600 transition hover:bg-red-50 disabled:opacity-60 dark:border-red-500/40 dark:hover:bg-red-500/10"
+                  >
+                    Remove Image
+                  </button>
+                )}
+              </div>
+
+              {selectedImage && (
+                <p className="muted-text mt-3 text-sm">
+                  Selected:{" "}
+                  {selectedImage.name}
+                </p>
+              )}
+            </div>
           </div>
 
           <div className="sm:col-span-2">
@@ -358,7 +555,8 @@ const OwnerRestaurantPanel = ({
               onChange={handleChange}
               placeholder="Write a short description..."
               rows={5}
-              className="w-full resize-none rounded-xl border border-(--border) bg-(--surface) px-4 py-3 outline-none transition focus:border-orange-500"
+              disabled={isPending}
+              className="w-full resize-none rounded-xl border border-[var(--border)] bg-[var(--surface)] px-4 py-3 outline-none transition focus:border-orange-500 disabled:opacity-60"
             />
           </div>
 
@@ -369,7 +567,7 @@ const OwnerRestaurantPanel = ({
               className="rounded-xl bg-orange-500 px-6 py-3 font-semibold text-white transition hover:bg-orange-600 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {isPending
-                ? "Saving..."
+                ? "Uploading & Saving..."
                 : restaurant
                   ? "Update Restaurant"
                   : "Submit Restaurant"}
@@ -380,7 +578,7 @@ const OwnerRestaurantPanel = ({
                 type="button"
                 onClick={handleCancel}
                 disabled={isPending}
-                className="rounded-xl border border-(--border) px-6 py-3 font-semibold transition hover:bg-black/5 dark:hover:bg-white/5"
+                className="rounded-xl border border-[var(--border)] px-6 py-3 font-semibold transition hover:bg-black/5 disabled:opacity-60 dark:hover:bg-white/5"
               >
                 Cancel
               </button>
@@ -453,7 +651,7 @@ const OwnerRestaurantPanel = ({
             </p>
           )}
 
-          <div className="mt-6 grid gap-4 border-t border-(--border) pt-5 sm:grid-cols-2">
+          <div className="mt-6 grid gap-4 border-t border-[var(--border)] pt-5 sm:grid-cols-2">
             <div>
               <p className="muted-text text-sm">
                 Phone
@@ -499,16 +697,14 @@ const OwnerRestaurantPanel = ({
             </div>
           </div>
 
-          {restaurant.status ===
-            "pending" && (
+          {restaurant.status === "pending" && (
             <div className="mt-6 rounded-xl bg-amber-50 p-4 text-sm text-amber-700 dark:bg-amber-500/10 dark:text-amber-300">
               Your restaurant is waiting for
               admin approval.
             </div>
           )}
 
-          {restaurant.status ===
-            "rejected" && (
+          {restaurant.status === "rejected" && (
             <div className="mt-6 rounded-xl bg-red-50 p-4 text-sm text-red-700 dark:bg-red-500/10 dark:text-red-300">
               Your restaurant was rejected.
               Update the information and contact
@@ -519,15 +715,7 @@ const OwnerRestaurantPanel = ({
           <div className="mt-7 flex flex-wrap gap-3">
             <button
               type="button"
-              onClick={() => {
-                setFormData(
-                  getRestaurantForm(
-                    restaurant,
-                  ),
-                );
-
-                setIsEditing(true);
-              }}
+              onClick={openEditForm}
               disabled={isPending}
               className="rounded-xl bg-orange-500 px-6 py-3 font-semibold text-white transition hover:bg-orange-600 disabled:opacity-60"
             >

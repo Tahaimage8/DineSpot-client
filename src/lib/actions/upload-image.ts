@@ -2,12 +2,10 @@
 
 type ImgBBResponse = {
   success?: boolean;
-
   data?: {
     url?: string;
     display_url?: string;
   };
-
   error?: {
     message?: string;
   };
@@ -36,21 +34,23 @@ export const uploadImage = async (
     if (!(image instanceof File) || image.size === 0) {
       return {
         success: false,
-        message: "Please choose a profile image.",
+        message: "Please choose an image.",
       };
     }
 
     if (!allowedImageTypes.includes(image.type)) {
       return {
         success: false,
-        message: "Only JPG, PNG and WebP images are allowed.",
+        message:
+          "Only JPG, PNG and WebP images are allowed.",
       };
     }
 
     if (image.size > maximumImageSize) {
       return {
         success: false,
-        message: "The image must be smaller than 2 MB.",
+        message:
+          "The image must be smaller than 2 MB.",
       };
     }
 
@@ -64,7 +64,6 @@ export const uploadImage = async (
     }
 
     const uploadData = new FormData();
-
     uploadData.append("image", image);
 
     const response = await fetch(
@@ -76,29 +75,36 @@ export const uploadImage = async (
       },
     );
 
-    const result = (await response.json()) as ImgBBResponse;
+    const result =
+      (await response.json()) as ImgBBResponse;
 
     const imageUrl =
-      result.data?.display_url || result.data?.url;
+      result.data?.display_url ||
+      result.data?.url;
 
-    if (!response.ok || !result.success || !imageUrl) {
+    if (
+      !response.ok ||
+      !result.success ||
+      !imageUrl
+    ) {
       return {
         success: false,
         message:
           result.error?.message ||
-          "Profile image upload failed.",
+          "Image upload failed.",
       };
     }
 
     return {
       success: true,
-      message: "Profile image uploaded.",
+      message: "Image uploaded successfully.",
       imageUrl,
     };
   } catch {
     return {
       success: false,
-      message: "Something went wrong while uploading the image.",
+      message:
+        "Something went wrong while uploading the image.",
     };
   }
 };
