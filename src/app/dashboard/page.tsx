@@ -1,10 +1,10 @@
-import AdminAnalytics from "@/components/dashboard/analytics/AdminAnalytics";
-import CustomerAnalytics from "@/components/dashboard/analytics/CustomerAnalytics";
-import OwnerAnalytics from "@/components/dashboard/analytics/OwnerAnalytics";
+import AdminDashboardHome from "@/components/dashboard/admin/AdminDashboardHome";
+import CustomerDashboardHome from "@/components/dashboard/customer/CustomerDashboardHome";
+import RestaurantOwnerDashboardHome from "@/components/dashboard/owner/RestaurantOwnerDashboardHome";
 import {
-  getAdminReservations,
   getMyReservations,
   getOwnerReservations,
+  getAdminReservations,
 } from "@/lib/api/reservations";
 import {
   getAdminRestaurants,
@@ -16,10 +16,12 @@ import {
   getOwnerReviews,
 } from "@/lib/api/reviews";
 import { getAdminUsers } from "@/lib/api/users";
-import { getEffectiveUserType } from "@/lib/auth-role";
+import {
+  getEffectiveUserType,
+} from "@/lib/auth-role";
 import { requireDashboardRole } from "@/lib/dashboard-access";
 
-const AnalyticsPage = async () => {
+const DashboardPage = async () => {
   const session =
     await requireDashboardRole([
       "admin",
@@ -31,6 +33,9 @@ const AnalyticsPage = async () => {
     getEffectiveUserType(
       session.user,
     );
+
+  const userName =
+    session.user.name || "User";
 
   if (userType === "admin") {
     const [
@@ -46,7 +51,8 @@ const AnalyticsPage = async () => {
     ]);
 
     return (
-      <AdminAnalytics
+      <AdminDashboardHome
+        userName={userName}
         users={users}
         restaurants={restaurants}
         reservations={reservations}
@@ -69,7 +75,8 @@ const AnalyticsPage = async () => {
     ]);
 
     return (
-      <OwnerAnalytics
+      <RestaurantOwnerDashboardHome
+        userName={userName}
         restaurant={
           restaurants[0] || null
         }
@@ -86,11 +93,12 @@ const AnalyticsPage = async () => {
     ]);
 
   return (
-    <CustomerAnalytics
+    <CustomerDashboardHome
+      userName={userName}
       reservations={reservations}
       reviews={reviews}
     />
   );
 };
 
-export default AnalyticsPage;
+export default DashboardPage;

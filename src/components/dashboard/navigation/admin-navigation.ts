@@ -5,6 +5,7 @@ import {
   FiCoffee,
   FiHome,
   FiMessageSquare,
+  FiUser,
   FiUsers,
 } from "react-icons/fi";
 
@@ -39,5 +40,10 @@ export const adminNavigation: DashboardNavigationItem[] =
       label: "Analytics",
       href: "/dashboard/analytics",
       icon: FiBarChart2,
+    },
+    {
+      label: "Profile",
+      href: "/dashboard/profile",
+      icon: FiUser,
     },
   ];
