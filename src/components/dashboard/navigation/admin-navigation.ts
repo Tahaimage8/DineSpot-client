@@ -19,30 +19,30 @@ export const adminNavigation: DashboardNavigationItem[] =
       label: "Manage Users",
       href: "/dashboard/users",
       icon: FiUsers,
-      disabled: true,
+
     },
     {
       label: "Manage Restaurants",
       href: "/dashboard/restaurants",
       icon: FiCoffee,
-      disabled: true,
+
     },
     {
       label: "Manage Reservations",
       href: "/dashboard/reservations",
       icon: FiCalendar,
-      disabled: true,
+
     },
     {
       label: "Manage Reviews",
       href: "/dashboard/reviews",
       icon: FiMessageSquare,
-      disabled: true,
+
     },
     {
       label: "Analytics",
       href: "/dashboard/analytics",
       icon: FiBarChart2,
-      disabled: true,
+
     },
   ];
