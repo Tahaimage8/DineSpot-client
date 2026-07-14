@@ -12,7 +12,7 @@ import { serverMutation } from "@/lib/core/server";
 const refreshRestaurantPages = () => {
   revalidatePath("/");
   revalidatePath("/dashboard/my-restaurants");
-  revalidatePath("/dashboard/manage-restaurants");
+  revalidatePath("/dashboard/restaurants");
 };
 
 export const createRestaurant = async (
