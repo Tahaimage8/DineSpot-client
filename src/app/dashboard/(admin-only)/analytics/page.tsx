@@ -1,92 +1,29 @@
 import AdminAnalytics from "@/components/dashboard/analytics/AdminAnalytics";
-import CustomerAnalytics from "@/components/dashboard/analytics/CustomerAnalytics";
-import OwnerAnalytics from "@/components/dashboard/analytics/OwnerAnalytics";
-import {
-  getAdminReservations,
-  getMyReservations,
-  getOwnerReservations,
-} from "@/lib/api/reservations";
-import {
-  getAdminRestaurants,
-  getMyRestaurants,
-} from "@/lib/api/restaurants";
-import {
-  getAdminReviews,
-  getMyReviews,
-  getOwnerReviews,
-} from "@/lib/api/reviews";
+import { getAdminReservations } from "@/lib/api/reservations";
+import { getAdminRestaurants } from "@/lib/api/restaurants";
+import { getAdminReviews } from "@/lib/api/reviews";
 import { getAdminUsers } from "@/lib/api/users";
-import { getEffectiveUserType } from "@/lib/auth-role";
 import { requireDashboardRole } from "@/lib/dashboard-access";
 
 const AnalyticsPage = async () => {
-  const session =
-    await requireDashboardRole([
-      "admin",
-      "customer",
-      "restaurant_owner",
-    ]);
+  await requireDashboardRole(["admin"]);
 
-  const userType =
-    getEffectiveUserType(
-      session.user,
-    );
-
-  if (userType === "admin") {
-    const [
-      users,
-      restaurants,
-      reservations,
-      reviews,
-    ] = await Promise.all([
-      getAdminUsers(),
-      getAdminRestaurants(),
-      getAdminReservations(),
-      getAdminReviews(),
-    ]);
-
-    return (
-      <AdminAnalytics
-        users={users}
-        restaurants={restaurants}
-        reservations={reservations}
-        reviews={reviews}
-      />
-    );
-  }
-
-  if (
-    userType === "restaurant_owner"
-  ) {
-    const [
-      restaurants,
-      reservations,
-      reviewData,
-    ] = await Promise.all([
-      getMyRestaurants(),
-      getOwnerReservations(),
-      getOwnerReviews(),
-    ]);
-
-    return (
-      <OwnerAnalytics
-        restaurant={
-          restaurants[0] || null
-        }
-        reservations={reservations}
-        reviewData={reviewData}
-      />
-    );
-  }
-
-  const [reservations, reviews] =
-    await Promise.all([
-      getMyReservations(),
-      getMyReviews(),
-    ]);
+  const [
+    users,
+    restaurants,
+    reservations,
+    reviews,
+  ] = await Promise.all([
+    getAdminUsers(),
+    getAdminRestaurants(),
+    getAdminReservations(),
+    getAdminReviews(),
+  ]);
 
   return (
-    <CustomerAnalytics
+    <AdminAnalytics
+      users={users}
+      restaurants={restaurants}
       reservations={reservations}
       reviews={reviews}
     />

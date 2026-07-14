@@ -25,11 +25,6 @@ export const customerNavigation: DashboardNavigationItem[] =
       icon: FiStar,
     },
     {
-      label: "Analytics",
-      href: "/dashboard/analytics",
-      icon: FiBarChart2,
-    },
-    {
       label: "Profile",
       href: "/dashboard/profile",
       icon: FiUser,

@@ -30,11 +30,7 @@ export const ownerNavigation: DashboardNavigationItem[] =
       href: "/dashboard/reviews",
       icon: FiMessageSquare,
     },
-    {
-      label: "Analytics",
-      href: "/dashboard/analytics",
-      icon: FiBarChart2,
-    },
+
     {
       label: "Profile",
       href: "/dashboard/profile",
