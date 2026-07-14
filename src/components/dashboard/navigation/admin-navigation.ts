@@ -19,30 +19,25 @@ export const adminNavigation: DashboardNavigationItem[] =
       label: "Manage Users",
       href: "/dashboard/users",
       icon: FiUsers,
-
     },
     {
       label: "Manage Restaurants",
       href: "/dashboard/restaurants",
       icon: FiCoffee,
-
     },
     {
       label: "Manage Reservations",
       href: "/dashboard/reservations",
       icon: FiCalendar,
-
     },
     {
       label: "Manage Reviews",
       href: "/dashboard/reviews",
       icon: FiMessageSquare,
-
     },
     {
       label: "Analytics",
       href: "/dashboard/analytics",
       icon: FiBarChart2,
-
     },
   ];
