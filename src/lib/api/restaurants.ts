@@ -19,15 +19,23 @@ export type Restaurant = {
   phone?: string;
   email?: string;
   image?: string;
+
   ownerId: string;
   ownerEmail: string;
+
   status: RestaurantStatus;
+
+  averageRating?: number;
+  reviewCount?: number;
+
   createdAt: string;
   updatedAt: string;
+
   approvedAt?: string | null;
   approvedBy?: string | null;
   rejectedAt?: string | null;
   rejectedBy?: string | null;
+
   [key: string]: unknown;
 };
 
@@ -39,6 +47,7 @@ export type RestaurantInput = {
   phone?: string;
   email?: string;
   image?: string;
+
   [key: string]: unknown;
 };
 

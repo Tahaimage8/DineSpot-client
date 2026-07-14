@@ -348,7 +348,7 @@ const OwnerRestaurantPanel = ({
             Restaurant Owner
           </p>
 
-          <h1 className="mt-1 text-2xl font-bold text-[var(--foreground)] sm:text-3xl">
+          <h1 className="mt-1 text-2xl font-bold text-(--foreground) sm:text-3xl">
             {restaurant
               ? "Update Restaurant"
               : "Add Your Restaurant"}
@@ -381,7 +381,7 @@ const OwnerRestaurantPanel = ({
               placeholder="Enter restaurant name"
               required
               disabled={isPending}
-              className="w-full rounded-xl border border-[var(--border)] bg-[var(--surface)] px-4 py-3 outline-none transition focus:border-orange-500 disabled:opacity-60"
+              className="w-full rounded-xl border border-(--border) bg-(--surface) px-4 py-3 outline-none transition focus:border-orange-500 disabled:opacity-60"
             />
           </div>
 
@@ -401,7 +401,7 @@ const OwnerRestaurantPanel = ({
               placeholder="Bangladeshi, Italian..."
               required
               disabled={isPending}
-              className="w-full rounded-xl border border-[var(--border)] bg-[var(--surface)] px-4 py-3 outline-none transition focus:border-orange-500 disabled:opacity-60"
+              className="w-full rounded-xl border border-(--border) bg-(--surface) px-4 py-3 outline-none transition focus:border-orange-500 disabled:opacity-60"
             />
           </div>
 
@@ -421,7 +421,7 @@ const OwnerRestaurantPanel = ({
               placeholder="Dhaka, Bangladesh"
               required
               disabled={isPending}
-              className="w-full rounded-xl border border-[var(--border)] bg-[var(--surface)] px-4 py-3 outline-none transition focus:border-orange-500 disabled:opacity-60"
+              className="w-full rounded-xl border border-(--border) bg-(--surface) px-4 py-3 outline-none transition focus:border-orange-500 disabled:opacity-60"
             />
           </div>
 
@@ -440,7 +440,7 @@ const OwnerRestaurantPanel = ({
               onChange={handleChange}
               placeholder="01XXXXXXXXX"
               disabled={isPending}
-              className="w-full rounded-xl border border-[var(--border)] bg-[var(--surface)] px-4 py-3 outline-none transition focus:border-orange-500 disabled:opacity-60"
+              className="w-full rounded-xl border border-(--border) bg-(--surface) px-4 py-3 outline-none transition focus:border-orange-500 disabled:opacity-60"
             />
           </div>
 
@@ -460,7 +460,7 @@ const OwnerRestaurantPanel = ({
               onChange={handleChange}
               placeholder="restaurant@example.com"
               disabled={isPending}
-              className="w-full rounded-xl border border-[var(--border)] bg-[var(--surface)] px-4 py-3 outline-none transition focus:border-orange-500 disabled:opacity-60"
+              className="w-full rounded-xl border border-(--border) bg-(--surface) px-4 py-3 outline-none transition focus:border-orange-500 disabled:opacity-60"
             />
           </div>
 
@@ -469,7 +469,7 @@ const OwnerRestaurantPanel = ({
               Restaurant Image
             </p>
 
-            <div className="rounded-2xl border border-dashed border-[var(--border)] p-4">
+            <div className="rounded-2xl border border-dashed border-(--border) p-4">
               {imagePreview ? (
                 <div className="relative h-56 overflow-hidden rounded-xl sm:h-72">
                   <Image
@@ -556,7 +556,7 @@ const OwnerRestaurantPanel = ({
               placeholder="Write a short description..."
               rows={5}
               disabled={isPending}
-              className="w-full resize-none rounded-xl border border-[var(--border)] bg-[var(--surface)] px-4 py-3 outline-none transition focus:border-orange-500 disabled:opacity-60"
+              className="w-full resize-none rounded-xl border border-(--border) bg-(--surface) px-4 py-3 outline-none transition focus:border-orange-500 disabled:opacity-60"
             />
           </div>
 
@@ -578,7 +578,7 @@ const OwnerRestaurantPanel = ({
                 type="button"
                 onClick={handleCancel}
                 disabled={isPending}
-                className="rounded-xl border border-[var(--border)] px-6 py-3 font-semibold transition hover:bg-black/5 disabled:opacity-60 dark:hover:bg-white/5"
+                className="rounded-xl border border-(--border) px-6 py-3 font-semibold transition hover:bg-black/5 disabled:opacity-60 dark:hover:bg-white/5"
               >
                 Cancel
               </button>
@@ -651,7 +651,7 @@ const OwnerRestaurantPanel = ({
             </p>
           )}
 
-          <div className="mt-6 grid gap-4 border-t border-[var(--border)] pt-5 sm:grid-cols-2">
+          <div className="mt-6 grid gap-4 border-t border-(--border) pt-5 sm:grid-cols-2">
             <div>
               <p className="muted-text text-sm">
                 Phone

@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import {
   useMemo,
   useState,
@@ -12,6 +13,7 @@ import {
   FiCoffee,
   FiMapPin,
   FiPhone,
+  FiStar,
   FiUsers,
   FiXCircle,
 } from "react-icons/fi";
@@ -326,23 +328,38 @@ const CustomerReservations = ({
                         </div>
                       )}
 
-                      {canCancel && (
-                        <button
-                          type="button"
-                          onClick={() =>
-                            handleCancel(
-                              reservation,
-                            )
-                          }
-                          disabled={isWorking}
-                          className="mt-5 inline-flex items-center gap-2 rounded-xl border border-red-300 px-4 py-2.5 text-sm font-semibold text-red-600 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-red-500/40 dark:hover:bg-red-500/10"
-                        >
-                          <FiXCircle />
-                          {isWorking
-                            ? "Cancelling..."
-                            : "Cancel Reservation"}
-                        </button>
-                      )}
+                      <div className="mt-5 flex flex-wrap gap-2">
+                        {canCancel && (
+                          <button
+                            type="button"
+                            onClick={() =>
+                              handleCancel(
+                                reservation,
+                              )
+                            }
+                            disabled={isWorking}
+                            className="inline-flex items-center gap-2 rounded-xl border border-red-300 px-4 py-2.5 text-sm font-semibold text-red-600 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-red-500/40 dark:hover:bg-red-500/10"
+                          >
+                            <FiXCircle />
+                            {isWorking
+                              ? "Cancelling..."
+                              : "Cancel Reservation"}
+                          </button>
+                        )}
+
+                        {reservation.status ===
+                          "completed" && (
+                          <Link
+                            href={`/dashboard/reviews?reservationId=${encodeURIComponent(
+                              reservation._id,
+                            )}`}
+                            className="inline-flex items-center gap-2 rounded-xl bg-orange-500 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-orange-600"
+                          >
+                            <FiStar />
+                            Write Review
+                          </Link>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </article>

@@ -10,7 +10,9 @@ import {
 } from "react-icons/fi";
 
 import ReservationForm from "@/components/reservations/ReservationForm";
+import RestaurantReviews from "@/components/reviews/RestaurantReviews";
 import { getRestaurantById } from "@/lib/api/restaurants";
+import { getRestaurantReviews } from "@/lib/api/reviews";
 import { getEffectiveUserType } from "@/lib/auth-role";
 import { getUserSession } from "@/lib/core/session";
 
@@ -25,13 +27,25 @@ const RestaurantDetailsPage = async ({
 }: RestaurantDetailsPageProps) => {
   const { id } = await params;
 
-  const [restaurant, session] =
-    await Promise.all([
-      getRestaurantById(id).catch(
-        () => null,
-      ),
-      getUserSession(),
-    ]);
+  const [
+    restaurant,
+    reviewData,
+    session,
+  ] = await Promise.all([
+    getRestaurantById(id).catch(
+      () => null,
+    ),
+    getRestaurantReviews(id).catch(
+      () => ({
+        reviews: [],
+        summary: {
+          averageRating: 0,
+          reviewCount: 0,
+        },
+      }),
+    ),
+    getUserSession(),
+  ]);
 
   if (!restaurant) {
     notFound();
@@ -83,6 +97,24 @@ const RestaurantDetailsPage = async ({
               <FiMapPin />
               {restaurant.location}
             </p>
+
+            {reviewData.summary
+              .reviewCount > 0 && (
+              <p className="mt-3 font-semibold text-amber-300">
+                {reviewData.summary.averageRating.toFixed(
+                  1,
+                )}{" "}
+                / 5 from{" "}
+                {
+                  reviewData.summary
+                    .reviewCount
+                }{" "}
+                {reviewData.summary
+                  .reviewCount === 1
+                  ? "review"
+                  : "reviews"}
+              </p>
+            )}
           </div>
         </div>
 
@@ -198,6 +230,10 @@ const RestaurantDetailsPage = async ({
           />
         </div>
       </article>
+
+      <RestaurantReviews
+        reviewData={reviewData}
+      />
     </main>
   );
 };
