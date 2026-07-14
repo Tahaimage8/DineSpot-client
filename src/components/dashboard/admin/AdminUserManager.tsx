@@ -6,9 +6,11 @@ import {
   useTransition,
 } from "react";
 import {
+  FiLock,
   FiMail,
   FiSearch,
   FiShield,
+  FiUnlock,
   FiUser,
   FiUsers,
 } from "react-icons/fi";
@@ -16,6 +18,7 @@ import { toast } from "react-toastify";
 
 import {
   updateAdminUserAccountType,
+  updateAdminUserBlockStatus,
   updateAdminUserRole,
 } from "@/lib/actions/users";
 import type {
@@ -35,6 +38,11 @@ type RoleFilter =
 type AccountTypeFilter =
   | "all"
   | UserAccountType;
+
+type AccessFilter =
+  | "all"
+  | "active"
+  | "blocked";
 
 const roleLabels: Record<
   UserRole,
@@ -71,6 +79,9 @@ const AdminUserManager = ({
   ] =
     useState<AccountTypeFilter>("all");
 
+  const [accessFilter, setAccessFilter] =
+    useState<AccessFilter>("all");
+
   const [activeUserId, setActiveUserId] =
     useState<string | null>(null);
 
@@ -99,10 +110,17 @@ const AdminUserManager = ({
         user.accountType ===
           accountTypeFilter;
 
+      const matchesAccess =
+        accessFilter === "all" ||
+        (accessFilter === "blocked"
+          ? user.isBlocked
+          : !user.isBlocked);
+
       return (
         matchesSearch &&
         matchesRole &&
-        matchesAccountType
+        matchesAccountType &&
+        matchesAccess
       );
     });
   }, [
@@ -110,6 +128,7 @@ const AdminUserManager = ({
     search,
     roleFilter,
     accountTypeFilter,
+    accessFilter,
   ]);
 
   const stats = useMemo(
@@ -129,6 +148,9 @@ const AdminUserManager = ({
           user.role !== "admin" &&
           user.accountType ===
             "restaurant_owner",
+      ).length,
+      blocked: users.filter(
+        (user) => user.isBlocked,
       ).length,
     }),
     [users],
@@ -232,6 +254,51 @@ const AdminUserManager = ({
     });
   };
 
+  const handleBlockChange = (
+    user: AdminUser,
+  ) => {
+    const nextBlockedState =
+      !user.isBlocked;
+
+    const actionText = nextBlockedState
+      ? "block"
+      : "unblock";
+
+    const confirmed = window.confirm(
+      `${actionText === "block" ? "Block" : "Unblock"} ${user.name || user.email}?`,
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    setActiveUserId(user._id);
+
+    startTransition(async () => {
+      try {
+        const result =
+          await updateAdminUserBlockStatus(
+            user._id,
+            nextBlockedState,
+          );
+
+        if (result.user) {
+          replaceUser(result.user);
+        }
+
+        toast.success(result.message);
+      } catch (error) {
+        toast.error(
+          error instanceof Error
+            ? error.message
+            : "Failed to update user access.",
+        );
+      } finally {
+        setActiveUserId(null);
+      }
+    });
+  };
+
   return (
     <section className="space-y-6">
       <div>
@@ -244,12 +311,12 @@ const AdminUserManager = ({
         </h1>
 
         <p className="muted-text mt-2">
-          View registered users and update their
-          role or account type.
+          View registered users, update roles and
+          control account access.
         </p>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
         <div className="surface-card p-5">
           <p className="muted-text text-sm">
             Total Users
@@ -285,9 +352,18 @@ const AdminUserManager = ({
             {stats.admins}
           </p>
         </div>
+
+        <div className="surface-card p-5">
+          <p className="muted-text text-sm">
+            Blocked
+          </p>
+          <p className="mt-2 text-3xl font-bold text-red-500">
+            {stats.blocked}
+          </p>
+        </div>
       </div>
 
-      <div className="surface-card grid gap-4 p-4 sm:p-5 lg:grid-cols-[1fr_180px_220px]">
+      <div className="surface-card grid gap-4 p-4 sm:p-5 xl:grid-cols-[1fr_160px_210px_170px]">
         <div className="relative">
           <FiSearch className="muted-text absolute left-4 top-1/2 -translate-y-1/2" />
 
@@ -298,7 +374,7 @@ const AdminUserManager = ({
               setSearch(event.target.value)
             }
             placeholder="Search name or email..."
-            className="w-full rounded-xl border border-[var(--border)] bg-[var(--surface)] py-3 pl-11 pr-4 outline-none transition focus:border-orange-500"
+            className="w-full rounded-xl border border-[var(--border)] bg-[var(--surface)] py-3 pl-11 pr-4 text-[var(--foreground)] outline-none transition placeholder:text-[var(--muted)] focus:border-orange-500"
           />
         </div>
 
@@ -309,7 +385,7 @@ const AdminUserManager = ({
               event.target.value as RoleFilter,
             )
           }
-          className="rounded-xl border border-[var(--border)] bg-[var(--surface)] px-4 py-3 outline-none transition focus:border-orange-500"
+          className="theme-select rounded-xl border border-[var(--border)] bg-[var(--surface)] px-4 py-3 text-[var(--foreground)] outline-none transition focus:border-orange-500"
         >
           <option value="all">
             All Roles
@@ -330,7 +406,7 @@ const AdminUserManager = ({
                 .value as AccountTypeFilter,
             )
           }
-          className="rounded-xl border border-[var(--border)] bg-[var(--surface)] px-4 py-3 outline-none transition focus:border-orange-500"
+          className="theme-select rounded-xl border border-[var(--border)] bg-[var(--surface)] px-4 py-3 text-[var(--foreground)] outline-none transition focus:border-orange-500"
         >
           <option value="all">
             All Account Types
@@ -340,6 +416,26 @@ const AdminUserManager = ({
           </option>
           <option value="restaurant_owner">
             Restaurant Owner
+          </option>
+        </select>
+
+        <select
+          value={accessFilter}
+          onChange={(event) =>
+            setAccessFilter(
+              event.target.value as AccessFilter,
+            )
+          }
+          className="theme-select rounded-xl border border-[var(--border)] bg-[var(--surface)] px-4 py-3 text-[var(--foreground)] outline-none transition focus:border-orange-500"
+        >
+          <option value="all">
+            All Access
+          </option>
+          <option value="active">
+            Active
+          </option>
+          <option value="blocked">
+            Blocked
           </option>
         </select>
       </div>
@@ -374,7 +470,11 @@ const AdminUserManager = ({
             return (
               <article
                 key={user._id}
-                className="surface-card p-5"
+                className={`surface-card p-5 ${
+                  user.isBlocked
+                    ? "border-red-400/60"
+                    : ""
+                }`}
               >
                 <div className="flex flex-wrap items-start justify-between gap-4">
                   <div className="flex min-w-0 items-center gap-3">
@@ -391,6 +491,12 @@ const AdminUserManager = ({
                         {user.isCurrentUser && (
                           <span className="rounded-full bg-orange-100 px-2.5 py-1 text-xs font-semibold text-orange-700 dark:bg-orange-500/15 dark:text-orange-300">
                             You
+                          </span>
+                        )}
+
+                        {user.isBlocked && (
+                          <span className="rounded-full bg-red-100 px-2.5 py-1 text-xs font-semibold text-red-700 dark:bg-red-500/15 dark:text-red-300">
+                            Blocked
                           </span>
                         )}
                       </div>
@@ -436,6 +542,27 @@ const AdminUserManager = ({
                         ).toLocaleDateString()
                       : "Not available"}
                   </p>
+
+                  <p>
+                    <span className="font-semibold text-[var(--foreground)]">
+                      Access:
+                    </span>{" "}
+                    {user.isBlocked
+                      ? "Blocked"
+                      : "Active"}
+                  </p>
+
+                  {user.isBlocked &&
+                    user.blockedAt && (
+                      <p>
+                        <span className="font-semibold text-[var(--foreground)]">
+                          Blocked:
+                        </span>{" "}
+                        {new Date(
+                          user.blockedAt,
+                        ).toLocaleDateString()}
+                      </p>
+                    )}
                 </div>
 
                 <div className="mt-5 grid gap-4 border-t border-[var(--border)] pt-5 sm:grid-cols-2">
@@ -461,7 +588,7 @@ const AdminUserManager = ({
                         isWorking ||
                         user.isCurrentUser
                       }
-                      className="w-full rounded-xl border border-[var(--border)] bg-[var(--surface)] px-4 py-3 outline-none transition focus:border-orange-500 disabled:cursor-not-allowed disabled:opacity-60"
+                      className="theme-select w-full rounded-xl border border-[var(--border)] bg-[var(--surface)] px-4 py-3 text-[var(--foreground)] outline-none transition focus:border-orange-500 disabled:cursor-not-allowed disabled:opacity-60"
                     >
                       <option value="user">
                         User
@@ -494,7 +621,7 @@ const AdminUserManager = ({
                         isWorking ||
                         user.role === "admin"
                       }
-                      className="w-full rounded-xl border border-[var(--border)] bg-[var(--surface)] px-4 py-3 outline-none transition focus:border-orange-500 disabled:cursor-not-allowed disabled:opacity-60"
+                      className="theme-select w-full rounded-xl border border-[var(--border)] bg-[var(--surface)] px-4 py-3 text-[var(--foreground)] outline-none transition focus:border-orange-500 disabled:cursor-not-allowed disabled:opacity-60"
                     >
                       <option value="customer">
                         Customer
@@ -506,11 +633,35 @@ const AdminUserManager = ({
                   </div>
                 </div>
 
-                {isWorking && (
-                  <p className="muted-text mt-3 text-sm">
-                    Updating user...
-                  </p>
-                )}
+                <div className="mt-4">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      handleBlockChange(user)
+                    }
+                    disabled={
+                      isWorking ||
+                      user.isCurrentUser
+                    }
+                    className={`inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold text-white transition disabled:cursor-not-allowed disabled:opacity-60 ${
+                      user.isBlocked
+                        ? "bg-emerald-600 hover:bg-emerald-700"
+                        : "bg-red-600 hover:bg-red-700"
+                    }`}
+                  >
+                    {user.isBlocked ? (
+                      <FiUnlock />
+                    ) : (
+                      <FiLock />
+                    )}
+
+                    {isWorking
+                      ? "Updating..."
+                      : user.isBlocked
+                        ? "Unblock User"
+                        : "Block User"}
+                  </button>
+                </div>
               </article>
             );
           })}

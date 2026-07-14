@@ -20,6 +20,8 @@ export type AdminUser = {
   accountType: UserAccountType;
   createdAt?: string | null;
   updatedAt?: string | null;
+  isBlocked: boolean;
+  blockedAt?: string | null;
   isCurrentUser: boolean;
 };
 

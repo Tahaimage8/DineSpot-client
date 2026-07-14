@@ -18,23 +18,36 @@
 }
 
 :root {
+  color-scheme: light;
+
   --page-background: #fffaf5;
   --page-foreground: #172033;
-
   --surface-background: #ffffff;
   --surface-border: #e2e8f0;
-
   --muted-text: #64748b;
+
+  /* Short aliases used by components */
+  --page: var(--page-background);
+  --foreground: var(--page-foreground);
+  --surface: var(--surface-background);
+  --border: var(--surface-border);
+  --muted: var(--muted-text);
 }
 
 .dark {
+  color-scheme: dark;
+
   --page-background: #0b1120;
   --page-foreground: #f8fafc;
-
   --surface-background: #111827;
   --surface-border: #263244;
-
   --muted-text: #94a3b8;
+
+  --page: var(--page-background);
+  --foreground: var(--page-foreground);
+  --surface: var(--surface-background);
+  --border: var(--surface-border);
+  --muted: var(--muted-text);
 }
 
 * {
@@ -64,6 +77,26 @@ button {
   cursor: pointer;
 }
 
+input,
+textarea,
+select {
+  color: var(--foreground);
+}
+
+select,
+select option {
+  background-color: var(--surface);
+  color: var(--foreground);
+}
+
+.theme-select {
+  color-scheme: light;
+}
+
+.dark .theme-select {
+  color-scheme: dark;
+}
+
 ::selection {
   background-color: #fed7aa;
   color: #7c2d12;
@@ -75,7 +108,6 @@ button {
 }
 
 /* Shared responsive container */
-
 .container-shell {
   width: 100%;
   max-width: 1280px;
@@ -84,14 +116,12 @@ button {
 }
 
 /* Shared card surface */
-
 .surface-card {
   border: 1px solid var(--surface-border);
   background-color: var(--surface-background);
 }
 
 /* Shared muted text */
-
 .muted-text {
   color: var(--muted-text);
 }

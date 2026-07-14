@@ -53,3 +53,24 @@ export const updateAdminUserAccountType =
 
     return result;
   };
+
+export const updateAdminUserBlockStatus =
+  async (
+    userId: string,
+    isBlocked: boolean,
+  ) => {
+    const result =
+      await serverMutation<AdminUserResponse>(
+        `/api/admin/users/${encodeURIComponent(
+          userId,
+        )}/block`,
+        "PATCH",
+        {
+          isBlocked,
+        },
+      );
+
+    refreshUserPages();
+
+    return result;
+  };

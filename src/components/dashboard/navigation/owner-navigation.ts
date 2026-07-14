@@ -22,12 +22,6 @@ export const ownerNavigation: DashboardNavigationItem[] =
 
     },
     {
-      label: "Add Restaurant",
-      href: "/dashboard/restaurants/add",
-      icon: FiPlusSquare,
-
-    },
-    {
       label: "Reservations",
       href: "/dashboard/reservations",
       icon: FiCalendar,

@@ -1,33 +1,40 @@
 import "server-only";
 
-import { auth } from "@/lib/auth";
 import {
   getEffectiveUserType,
   type EffectiveUserType,
 } from "@/lib/auth-role";
-import { headers } from "next/headers";
+import { getUserSession } from "@/lib/core/session";
 import { redirect } from "next/navigation";
 
 export const requireDashboardRole = async (
-  allowedRoles: EffectiveUserType | EffectiveUserType[],
+  allowedRoles:
+    | EffectiveUserType
+    | EffectiveUserType[],
 ) => {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
+  const session = await getUserSession();
 
   if (!session?.user) {
     redirect("/login");
   }
 
-  const currentUserType = getEffectiveUserType(
-    session.user,
-  );
+  if (session.user.isBlocked) {
+    redirect("/blocked");
+  }
 
-  const acceptedRoles = Array.isArray(allowedRoles)
-    ? allowedRoles
-    : [allowedRoles];
+  const currentUserType =
+    getEffectiveUserType(session.user);
 
-  if (!acceptedRoles.includes(currentUserType)) {
+  const acceptedRoles =
+    Array.isArray(allowedRoles)
+      ? allowedRoles
+      : [allowedRoles];
+
+  if (
+    !acceptedRoles.includes(
+      currentUserType,
+    )
+  ) {
     redirect("/unauthorized");
   }
 

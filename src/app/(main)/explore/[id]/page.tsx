@@ -1,6 +1,9 @@
 import Image from "next/image";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import {
+  notFound,
+  redirect,
+} from "next/navigation";
 import {
   FiArrowLeft,
   FiCoffee,
@@ -46,6 +49,10 @@ const RestaurantDetailsPage = async ({
     ),
     getUserSession(),
   ]);
+
+  if (session?.user?.isBlocked) {
+    redirect("/blocked");
+  }
 
   if (!restaurant) {
     notFound();
